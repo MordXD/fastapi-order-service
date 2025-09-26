@@ -1,0 +1,72 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+.eggs/
+*.manifest
+*.spec
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+*.env
+.env.local
+.env.*.local
+
+# Byte-compiled / optimized files
+*.pyc
+*.pyo
+*.pyd
+
+# --- Testing ---
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# --- Jupyter ---
+.ipynb_checkpoints
+*.ipynb
+
+# --- Logs ---
+*.log
+logs/
+*.out
+*.err
+
+# --- SQL ---
+*.db
+*.sqlite3
+
+# --- Docker ---
+/data/
+*.pid
+docker-data/
+.docker/
+**/postgres-data/
+
+# --- Editors/IDEs ---
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Docs generated ---
+docs/build/
+docs/_build/
