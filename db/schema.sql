@@ -13,7 +13,7 @@ CREATE TABLE categories(
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     path LTREE NOT NULL,
-    parent_id BIGINT REFERENCES categories(id) ON DELETE CASCADE
+    parent_id BIGINT REFERENCES categories(id) ON DELETE CASCADE,
     CONSTRAINT uq_categories_path UNIQUE(path),
     CONSTRAINT uq_categories_parent_name UNIQUE(parent_id, name)
 );
