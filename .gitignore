@@ -9,7 +9,7 @@ __pycache__/
 .eggs/
 *.manifest
 *.spec
-
+poetry.lock
 # Virtual environments
 .venv/
 venv/
