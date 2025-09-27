@@ -3,12 +3,15 @@ from pydantic import BaseModel
 
 class ClientCreate(BaseModel):
     name: str
-    adress: str
+    address: str
+
+class ClientDelete(BaseModel):
+    id: int
 
 class ClientResponse(BaseModel):
     id: int
     name: str
-    adress: str
+    address: str
 
     class Config:
         from_attributes = True

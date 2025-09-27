@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 import os
 from urllib.parse import urlparse
 from psycopg2 import pool
@@ -20,16 +21,13 @@ connection_pool = pool.SimpleConnectionPool(
 
 
 
-
 def get_db_connection():
     conn = connection_pool.getconn()
     try:
-        cur = conn.cursor()
-        yield cur
+        yield conn
         conn.commit()
     except Exception as e:
         conn.rollback()
         raise e    
     finally:
-        cur.close()
-        conn.close()
+        connection_pool.putconn(conn)

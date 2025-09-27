@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -11,7 +12,7 @@ class ProductResponse(BaseModel):
     name: str
     price: float
     category_id: int
-    stock: int
+    stock: Optional[int] = 0
 
     class Config:
         from_attributes = True
