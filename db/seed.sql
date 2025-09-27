@@ -4,7 +4,7 @@
 
 BEGIN;
 
--- Рекомендуется для повторных прогонов на dev:
+-- Для повторных прогонов на dev:
 -- TRUNCATE order_items, orders, inventory, products, categories, clients RESTART IDENTITY CASCADE;
 
 -- ---------- Clients ----------
@@ -15,15 +15,15 @@ COPY clients (id, name, address) FROM STDIN;
 \.
 
 -- ---------- Categories ----------
--- ВАЖНО: родители раньше детей (FK на parent_id)
+-- Родители раньше детей (FK на parent_id)
 COPY categories (id, name, path, parent_id) FROM STDIN;
 1	Electronics	Electronics	\N
-2	Home	        Home	        \N
-3	Phones	        Electronics.Phones	1
-4	Laptops	        Electronics.Laptops	1
+2	Home	Home	\N
+3	Phones	Electronics.Phones	1
+4	Laptops	Electronics.Laptops	1
 5	Smartphones	Electronics.Phones.Smartphones	3
-6	Feature Phones	Electronics.Phones.FeaturePhones	3
-7	Kitchen	        Home.Kitchen	2
+6	FeaturePhones	Electronics.Phones.FeaturePhones	3
+7	Kitchen	Home.Kitchen	2
 8	Furniture	Home.Furniture	2
 \.
 
@@ -57,7 +57,6 @@ COPY orders (id, client_id, created_at, status) FROM STDIN;
 \.
 
 -- ---------- Order Items для этих 3 заказов ----------
--- amount НЕ вставляем: это STORED generated column
 COPY order_items (order_id, product_id, qty, price_at_moment) FROM STDIN;
 1	1	1	999.99
 1	6	2	120.00
@@ -81,7 +80,7 @@ INSERT INTO orders (client_id, created_at, status)
 SELECT
     (SELECT id FROM clients ORDER BY random() LIMIT 1),
     now() - (random() * interval '30 days'),
-    (ARRAY['NEW','PROCESSING','COMPLETED','CANCELLED'])[ceil(random()*4)]
+    ((ARRAY['NEW','PROCESSING','COMPLETED','CANCELLED']::order_status[])[ceil(random()*4)])
 FROM generate_series(1, 100);
 
 -- Для сгенерированных заказов: 1–3 случайных товара на заказ

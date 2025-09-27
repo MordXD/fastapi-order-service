@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: task-db
+    restart: always
+    environment:
+      POSTGRES_USER: task
+      POSTGRES_PASSWORD: task
+      POSTGRES_DB: taskdb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U task -d taskdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/1_schema.sql
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/2_seed.sql
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: service/Dockerfile
+    container_name: task-app
+    restart: always
+    depends_on:
+       db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://task:task@db:5432/taskdb
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./service:/app
+      - ./db:/app/db
+
+volumes:
+  pgdata:
