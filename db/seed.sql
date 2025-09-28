@@ -16,15 +16,16 @@ COPY clients (id, name, address) FROM STDIN;
 
 -- ---------- Categories ----------
 -- Родители раньше детей (FK на parent_id)
+-- ---------- Categories (ИСПРАВЛЕНО) ----------
 COPY categories (id, name, path, parent_id) FROM STDIN;
-1	Electronics	Electronics	\N
-2	Home	Home	\N
-3	Phones	Electronics.Phones	1
-4	Laptops	Electronics.Laptops	1
-5	Smartphones	Electronics.Phones.Smartphones	3
-6	FeaturePhones	Electronics.Phones.FeaturePhones	3
-7	Kitchen	Home.Kitchen	2
-8	Furniture	Home.Furniture	2
+1	Electronics	1	\N
+2	Home	2	\N
+3	Phones	1.3	1
+4	Laptops	1.4	1
+5	Smartphones	1.3.5	3
+6	FeaturePhones	1.3.6	3
+7	Kitchen	2.7	2
+8	Furniture	2.8	2
 \.
 
 -- ---------- Products ----------

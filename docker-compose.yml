@@ -19,6 +19,7 @@ services:
     volumes:
       - ./db/schema.sql:/docker-entrypoint-initdb.d/1_schema.sql
       - ./db/seed.sql:/docker-entrypoint-initdb.d/2_seed.sql
+      - ./db/analytics.sql:/docker-entrypoint-initdb.d/3_analytics.sql
       - pgdata:/var/lib/postgresql/data
 
   app:
@@ -37,6 +38,23 @@ services:
     volumes:
       - ./service:/app
       - ./db:/app/db
+
+  etl-cron:
+    image: postgres:15
+    container_name: task-etl-cron
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_USER: task
+      POSTGRES_PASSWORD: task
+      POSTGRES_DB: taskdb
+    volumes:
+      # Монтируем наш скрипт внутрь контейнера
+      - ./etl_runner.sh:/etl_runner.sh
+    # Запускаем наш скрипт при старте контейнера
+    command: ["/bin/sh", "/etl_runner.sh"]
 
 volumes:
   pgdata:

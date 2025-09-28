@@ -56,7 +56,7 @@ CREATE TABLE orders(
 
 CREATE INDEX idx_orders_client_created ON orders(client_id, created_at);
 CREATE INDEX idx_orders_status_created ON orders(status, created_at);
-
+CREATE INDEX idx_orders_created_at ON orders(created_at DESC);
 CREATE TABLE order_items(
     order_id BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
     product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE RESTRICT,

@@ -147,12 +147,9 @@ def get_order(order_id: int, conn: Connection = Depends(get_db_connection)):
 def add_item_to_order(order_id: int, item_in: OrderItemCreate, conn: Connection = Depends(get_db_connection)):
     """[U]pdate: Добавляет товар в заказ (ключевая логика задания)."""
     with conn.cursor() as cursor:
-        # 1. Проверяем, существует ли заказ
         cursor.execute("SELECT id FROM orders WHERE id = %s FOR UPDATE", (order_id,))
         if not cursor.fetchone():
             raise HTTPException(status_code=404, detail="Order not found")
-
-        # 2. Получаем цену и остаток товара, блокируя строку для безопасности
         cursor.execute(
             "SELECT p.price, i.stock FROM products p JOIN inventory i ON p.id = i.product_id WHERE p.id = %s FOR UPDATE",
             (item_in.product_id,)
@@ -162,12 +159,8 @@ def add_item_to_order(order_id: int, item_in: OrderItemCreate, conn: Connection 
             raise HTTPException(status_code=404, detail="Product not found")
         
         current_price, current_stock = product_data
-
-        # 3. Проверяем наличие на складе
         if current_stock < item_in.quantity:
             raise HTTPException(status_code=400, detail=f"Insufficient stock. Available: {current_stock}")
-
-        # 4. Добавляем/обновляем позицию в заказе (UPSERT)
         cursor.execute(
             """
             INSERT INTO order_items (order_id, product_id, qty, price_at_moment)
@@ -177,14 +170,10 @@ def add_item_to_order(order_id: int, item_in: OrderItemCreate, conn: Connection 
             """,
             (order_id, item_in.product_id, item_in.quantity, current_price)
         )
-
-        # 5. Обновляем остатки на складе
         cursor.execute(
             "UPDATE inventory SET stock = stock - %s WHERE product_id = %s",
             (item_in.quantity, item_in.product_id)
         )
-
-        # 6. Возвращаем обновленное состояние заказа
         return _fetch_order_details(order_id, cursor)
 
 
