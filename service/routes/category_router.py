@@ -2,43 +2,57 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from typing import List
 from psycopg2.extensions import connection as Connection, cursor as Cursor
-
 from db.session import get_db_connection
 from schemas.category import CategoryCreate, CategoryResponse, CategoryTreeNode
 
 category_router = APIRouter()
 
+
 @category_router.post("/", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED)
 def create_category(category_in: CategoryCreate, conn: Connection = Depends(get_db_connection)):
     """Создает новую категорию и вычисляет ее ltree путь."""
     with conn.cursor() as cursor:
-        parent_path = ""
+        # Шаг 1: Вставляем новую категорию, используя временный путь,
+        # который мы сразу же получим из RETURNING id.
+        # Мы не можем сразу вычислить полный путь, так как не знаем id.
+        cursor.execute(
+            """
+            INSERT INTO categories (name, parent_id, path)
+            -- Вставляем временный 'placeholder' путь.
+            -- Он будет заменен на правильный через мгновение.
+            VALUES (%s, %s, 'tmp')
+            RETURNING id
+            """,
+            (category_in.name, category_in.parent_id)
+        )
+        new_category_id = cursor.fetchone()[0]
+
+        # Шаг 2: Вычисляем правильный путь
+        parent_path_str = ""
         if category_in.parent_id:
             cursor.execute("SELECT path FROM categories WHERE id = %s", (category_in.parent_id,))
             parent_row = cursor.fetchone()
             if not parent_row:
+                # Этого не должно произойти, так как у нас есть FK constraint, но для надежности.
                 raise HTTPException(status_code=404, detail="Parent category not found")
-            parent_path = parent_row[0] + "."
+            parent_path_str = str(parent_row[0]) + "."
+
+        new_path = f"{parent_path_str}{new_category_id}"
+
+        # Шаг 3: Обновляем запись правильным путем ltree
         cursor.execute(
-            "INSERT INTO categories (name, parent_id) VALUES (%s, %s) RETURNING id",
-            (category_in.name, category_in.parent_id)
-        )
-        new_category_id = cursor.fetchone()[0]
-        new_path = f"{parent_path}{new_category_id}"
-        cursor.execute(
-            "UPDATE categories SET path = %s WHERE id = %s",
+            "UPDATE categories SET path = %s::ltree WHERE id = %s RETURNING id, name, path, parent_id",
             (new_path, new_category_id)
         )
-        cursor.execute(
-            "SELECT id, name, path, parent_id FROM categories WHERE id = %s",
-            (new_category_id,)
-        )
-        new_category_row = cursor.fetchone()
+        
+        # RETURNING в UPDATE сразу вернет нам все нужные данные для ответа
+        final_row = cursor.fetchone()
+
         return CategoryResponse(
-            id=new_category_row[0],
-            name=new_category_row[1],
-            path=new_category_row[2],
-            parent_id=new_category_row[3]
+            id=final_row[0],
+            name=final_row[1],
+            path=str(final_row[2]), # Преобразуем ltree в строку для Pydantic
+            parent_id=final_row[3]
         )
 
 

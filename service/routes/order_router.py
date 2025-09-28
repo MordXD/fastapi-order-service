@@ -1,10 +1,9 @@
-# /app/routes/order_router.py
-
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from typing import List
 from psycopg2.extensions import connection as Connection, cursor as Cursor
 
 from db.session import get_db_connection
+
 from schemas.order import OrderCreate, OrderItemCreate, OrderResponse, OrderItemResponse
 
 order_router = APIRouter()

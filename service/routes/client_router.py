@@ -1,7 +1,7 @@
 
 
 from typing import List
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 from fastapi import Depends
 from schemas.client import ClientCreate, ClientDelete, ClientResponse
 from db.session import get_db_connection
@@ -18,7 +18,7 @@ def get_clients(conn: Connection = Depends(get_db_connection), skip: int = 0, li
 
 
 
-@client_router.post("/", response_model=ClientResponse)
+@client_router.post("/", response_model=ClientResponse, status_code=status.HTTP_201_CREATED)
 def create_client(client: ClientCreate, conn: Connection = Depends(get_db_connection)):
     with conn.cursor() as cursor:
         cursor.execute(
@@ -28,8 +28,8 @@ def create_client(client: ClientCreate, conn: Connection = Depends(get_db_connec
         """,
         (client.name, client.address)
     )
-    row = cursor.fetchone()
-    return ClientResponse(id=row[0], name=row[1], address=row[2])
+        row = cursor.fetchone()
+        return ClientResponse(id=row[0], name=row[1], address=row[2])
 
 @client_router.get("/{client_id}", response_model=ClientResponse)
 def get_client(client_id: int, conn: Connection = Depends(get_db_connection)):

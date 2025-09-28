@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from typing import List
 from psycopg2.extensions import connection as Connection
 from schemas.product import ProductCreate, ProductResponse, ProductUpdate
+
 from db.session import get_db_connection
 
 product_router = APIRouter()

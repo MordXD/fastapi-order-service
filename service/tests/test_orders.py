@@ -1,5 +1,3 @@
-# /tests/test_orders.py
-
 from fastapi.testclient import TestClient
 
 # Тест главной бизнес-логики: добавление товара в заказ
@@ -80,7 +78,5 @@ def test_add_item_to_order_flow(test_client: TestClient):
         "product_id": product_id,
         "quantity": 6
     })
-
-    # --- ASSERT 3 ---
-    assert add_fail_res.status_code == 400 # Ожидаем ошибку
+    assert add_fail_res.status_code == 400
     assert "Insufficient stock" in add_fail_res.json()["detail"]

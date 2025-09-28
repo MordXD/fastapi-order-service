@@ -24,6 +24,7 @@ connection_pool = pool.SimpleConnectionPool(
 def get_db_connection():
     conn = connection_pool.getconn()
     try:
+        conn.autocommit = False
         yield conn
         conn.commit()
     except Exception as e:

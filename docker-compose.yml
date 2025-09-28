@@ -17,9 +17,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./db/schema.sql:/docker-entrypoint-initdb.d/1_schema.sql
-      - ./db/seed.sql:/docker-entrypoint-initdb.d/2_seed.sql
-      - ./db/analytics.sql:/docker-entrypoint-initdb.d/3_analytics.sql
+      - ./service/db/schema.sql:/docker-entrypoint-initdb.d/1_schema.sql
+      - ./service/db/seed.sql:/docker-entrypoint-initdb.d/2_seed.sql
+      - ./service/db/analytics.sql:/docker-entrypoint-initdb.d/3_analytics.sql
       - pgdata:/var/lib/postgresql/data
 
   app:
@@ -37,7 +37,6 @@ services:
       - "8000:8000"
     volumes:
       - ./service:/app
-      - ./db:/app/db
 
   etl-cron:
     image: postgres:15
@@ -51,9 +50,7 @@ services:
       POSTGRES_PASSWORD: task
       POSTGRES_DB: taskdb
     volumes:
-      # Монтируем наш скрипт внутрь контейнера
       - ./etl_runner.sh:/etl_runner.sh
-    # Запускаем наш скрипт при старте контейнера
     command: ["/bin/sh", "/etl_runner.sh"]
 
 volumes:

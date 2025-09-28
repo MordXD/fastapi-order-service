@@ -18,7 +18,7 @@ env/
 *.env
 .env.local
 .env.*.local
-
+.pytest_cache
 # Byte-compiled / optimized files
 *.pyc
 *.pyo
