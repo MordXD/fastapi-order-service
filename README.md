@@ -56,8 +56,8 @@
 
 **1. Клонируйте репозиторий:**
 ```bash
-git clone <URL_вашего_репозитория>
-cd <папка_проекта>
+git clone https://github.com/MordXD/fastapi-order-service.git
+cd fastapi-order-service
 ```
 
 **2. Создайте файл с переменными окружения:**
