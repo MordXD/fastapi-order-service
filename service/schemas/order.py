@@ -1,28 +1,30 @@
 from datetime import datetime
-from pydantic import BaseModel
+from typing import List
+from pydantic import BaseModel, Field
 
 
 class OrderItemCreate(BaseModel):
     product_id: int
-    quantity: int
+    quantity: int = Field(..., gt=0)
 
 class OrderItemResponse(BaseModel):
     product_id: int
+    product_name: str
     quantity: int
-    order_id: int
     price_at_moment: float
     amount: float
 
 
 class OrderCreate(BaseModel):
     client_id: int
-    status_order: str = "NEW"
 
 class OrderResponse(BaseModel):
-    order_id: int
+    id: int 
     client_id: int
+    status: str 
     created_at: datetime
-    status_order: str
+    items: List[OrderItemResponse] = [] 
+    total_amount: float = 0.0 
 
     class Config:
         from_attributes = True

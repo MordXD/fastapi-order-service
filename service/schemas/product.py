@@ -6,6 +6,7 @@ class ProductCreate(BaseModel):
     name: str
     price: int
     category_id: int
+    initial_stock: int = 0
 
 class ProductResponse(BaseModel):
     id: int
@@ -16,3 +17,8 @@ class ProductResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class ProductUpdate(BaseModel):
+    name: str
+    price: float
+    category_id: int
